@@ -17,7 +17,9 @@ interface Box {
 }
 
 (async () => {
-  const model = await handTrack.load();
+  const model = await handTrack.load({
+    scoreThreshold: 0.2,
+  });
 
   const video = document.createElement("video");
   await handTrack.startVideo(video);
