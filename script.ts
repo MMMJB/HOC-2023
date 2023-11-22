@@ -17,8 +17,15 @@ interface Box {
 }
 
 (async () => {
+  const debuggingTypeDiv = document.getElementById("type")!;
+
   const model = await handTrack.load({
     flipHorizontal: true,
+
+    // modelType: "ssd320fpnlite",
+    modelType: "ssd640fpnlite",
+
+    modelSize: "small",
   });
 
   const video = document.createElement("video");
@@ -63,6 +70,8 @@ interface Box {
 
       // Sets array of predictions (currently only supports one hand)
       const { label, bbox } = hands.reduce((max, current) => parseFloat(current.score) > parseFloat(max.score) ? current : max);
+
+      debuggingTypeDiv.innerHTML = label;
 
       boxes.push({
         pose: label,
