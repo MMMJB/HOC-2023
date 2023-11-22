@@ -18,7 +18,7 @@ interface Box {
 
 (async () => {
   const model = await handTrack.load({
-    scoreThreshold: 0.2,
+    flipHorizontal: true,
   });
 
   const video = document.createElement("video");
@@ -37,14 +37,12 @@ interface Box {
 
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, width, height);
-    
 
     ctx.fillStyle = "white";
     for (const box of boxes) {
       ctx.save();
 
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.translate(box.x, box.y);
+      ctx.translate(box.x * (width / video.width), box.y * (height / video.height));
       ctx.fillRect(0, 0, box.width, box.height);
 
       ctx.restore();
@@ -62,14 +60,14 @@ interface Box {
       boxes.splice(0, boxes.length);
 
       // Sets array of predictions (currently only supports one hand)
-      const hand = hands.reduce((max, current) => parseFloat(current.score) > parseFloat(max.score) ? current : max);
+      const { label, bbox } = hands.reduce((max, current) => parseFloat(current.score) > parseFloat(max.score) ? current : max);
 
       boxes.push({
-        pose: hand.label,
-        x: -hand.bbox[0],
-        y: hand.bbox[1] - (video.height / 2),
-        width: hand.bbox[2],
-        height: hand.bbox[3],
+        pose: label,
+        x: bbox[0],
+        y: bbox[1],
+        width: bbox[2],
+        height: bbox[3],
       });
     }
 
