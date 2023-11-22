@@ -32,6 +32,8 @@ interface Box {
 
   const draw = (frame: number) => {
     const { width, height } = canvas;
+    const scaleX = width / video.width;
+    const scaleY = height / video.height;
     
     ctx.clearRect(0, 0, width, height);
 
@@ -42,8 +44,8 @@ interface Box {
     for (const box of boxes) {
       ctx.save();
 
-      ctx.translate(box.x * (width / video.width), box.y * (height / video.height));
-      ctx.fillRect(0, 0, box.width, box.height);
+      ctx.translate(box.x * scaleX, box.y * scaleY);
+      ctx.fillRect(0, 0, box.width * scaleX, box.height * scaleY);
 
       ctx.restore();
     }
