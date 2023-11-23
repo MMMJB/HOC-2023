@@ -58,9 +58,10 @@ interface Box {
     const scaleX = width / video.width;
     const scaleY = height / video.height;
     
-    ctx.clearRect(0, 0, width, height);
+    // ctx.clearRect(0, 0, width, height);
 
-    ctx.fillStyle = "black";
+    // ctx.fillStyle = "black";
+    ctx.fillStyle = "rgba(0,0,0,0.1)";
     ctx.fillRect(0, 0, width, height);
 
     ctx.save();
