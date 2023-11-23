@@ -2,18 +2,23 @@ import * as handTrack from "handtrackjs";
 
 type PoseLabel = "open" | "closed" | "pinch" | "point" | "face" | "pointtip" | "pinchtip";
 interface Prediction {
-  bbox: number[],
-  class: number,
-  label: PoseLabel,
-  score: string,
+  bbox: number[];
+  class: number;
+  label: PoseLabel;
+  score: string;
 }
 
 interface Box {
-  pose: PoseLabel,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
+  pose: PoseLabel;
+  posePrevious: PoseLabel;
+  pos: {
+    x: number;
+    y: number;
+  }
+  interpolated: {
+    x: number;
+    y: number;
+  }
 }
 
 (async () => {
@@ -25,7 +30,7 @@ interface Box {
     // modelType: "ssd320fpnlite",
     modelType: "ssd640fpnlite",
 
-    modelSize: "small",
+    modelSize: "large",
   });
 
   const video = document.createElement("video");
@@ -35,7 +40,18 @@ interface Box {
   const ctx = canvas.getContext("2d")!;
 
   let frame = 0;
-  const boxes: Box[] = [];
+  const box: Box = {
+    pose: "closed",
+    posePrevious: "closed",
+    pos: {
+      x: 0,
+      y: 0,
+    },
+    interpolated: {
+      x: 0,
+      y: 0,
+    },
+  };
 
   const draw = (frame: number) => {
     const { width, height } = canvas;
@@ -47,15 +63,19 @@ interface Box {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, width, height);
 
+    ctx.save();
+
+    box.interpolated.x = box.pos.x - (box.pos.x - box.interpolated.x) * 0.88;
+    box.interpolated.y = box.pos.y - (box.pos.y - box.interpolated.y) * 0.88;
+
     ctx.fillStyle = "white";
-    for (const box of boxes) {
-      ctx.save();
 
-      ctx.translate(box.x * scaleX, box.y * scaleY);
-      ctx.fillRect(0, 0, box.width * scaleX, box.height * scaleY);
+    ctx.beginPath();
+    ctx.translate(box.interpolated.x * scaleX, box.interpolated.y * scaleY);
+    ctx.arc(0, 0, 10, 0, 2 * Math.PI);
+    ctx.fill();
 
-      ctx.restore();
-    }
+    ctx.restore();
 
     requestAnimationFrame(() => draw(frame + 1));
   }
@@ -65,21 +85,20 @@ interface Box {
     const hands = predictions.filter(({ label }) => label !== "face");
 
     if (hands.length) {
-      // Clears array
-      boxes.splice(0, boxes.length);
-
       // Sets array of predictions (currently only supports one hand)
       const { label, bbox } = hands.reduce((max, current) => parseFloat(current.score) > parseFloat(max.score) ? current : max);
 
       debuggingTypeDiv.innerHTML = label;
 
-      boxes.push({
-        pose: label,
-        x: bbox[0],
-        y: bbox[1],
-        width: bbox[2],
-        height: bbox[3],
-      });
+      const x = bbox[0];
+      const y = bbox[1];
+      const width = bbox[2];
+      const height = bbox[3];
+
+      box.posePrevious = box.pose;
+      box.pose = label;
+      box.pos.x = x + (width / 2);
+      box.pos.y = y + (height / 2);
     }
 
     requestAnimationFrame(predict);
