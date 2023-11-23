@@ -64,19 +64,23 @@ interface Box {
     ctx.fillStyle = "rgba(0,0,0,0.1)";
     ctx.fillRect(0, 0, width, height);
 
-    ctx.save();
-
     box.interpolated.x = box.pos.x - (box.pos.x - box.interpolated.x) * 0.88;
     box.interpolated.y = box.pos.y - (box.pos.y - box.interpolated.y) * 0.88;
 
-    ctx.fillStyle = box.pose !== "open" ? "white" : "red";
-    if (box.pose !== "open") console.log(box.pose);
+    ctx.save();
+    ctx.fillStyle = "rgba(255,0,0,0.5)";
+    ctx.beginPath();
+    ctx.translate(box.pos.x * scaleX, box.pos.y * scaleY);
+    ctx.arc(0, 0, 10, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.restore();
 
+    ctx.save();
+    ctx.fillStyle = "white";
     ctx.beginPath();
     ctx.translate(box.interpolated.x * scaleX, box.interpolated.y * scaleY);
     ctx.arc(0, 0, 10, 0, 2 * Math.PI);
     ctx.fill();
-
     ctx.restore();
 
     requestAnimationFrame(() => draw(frame + 1));
