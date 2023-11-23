@@ -69,7 +69,8 @@ interface Box {
     box.interpolated.x = box.pos.x - (box.pos.x - box.interpolated.x) * 0.88;
     box.interpolated.y = box.pos.y - (box.pos.y - box.interpolated.y) * 0.88;
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = box.pose !== "open" ? "white" : "red";
+    if (box.pose !== "open") console.log(box.pose);
 
     ctx.beginPath();
     ctx.translate(box.interpolated.x * scaleX, box.interpolated.y * scaleY);
